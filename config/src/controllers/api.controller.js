@@ -62,22 +62,24 @@ exports.getUserById = async (req, res) => {
 // Create new user
 exports.createUser = async (req, res) => {
   try {
-    // Set default password if not provided
-    const userData = {
-      ...req.body,
-      password: req.body.password || '123456'
-    };
-    const user = new User(userData);
-    const savedUser = await user.save();
-    // Remove password from response
-    const userResponse = savedUser.toObject();
-    delete userResponse.password;
-    res.status(201).json(userResponse);
-  } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(400).json({ message: error.message });
+    // 👉 TẠO PASSWORD MẶC ĐỊNH NẾU FRONTEND KHÔNG GỬI
+    if (!req.body.password) {
+      req.body.password = "123456";
+    }
+
+    const user = new User(req.body);
+    await user.save();
+
+    res.status(201).json(user);
+  } catch (err) {
+    console.error("Create user error:", err);
+    res.status(500).json({
+      message: "Lỗi khi tạo người dùng",
+      error: err.message
+    });
   }
 };
+
 
 // Update user
 exports.updateUser = async (req, res) => {
